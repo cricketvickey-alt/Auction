@@ -59,9 +59,11 @@ router.post('/sell', async (req, res) => {
 
   // Add purchase to team
   const team = await Team.findById(bid.currentTeam._id);
+  console.log(`Before purchase: ${team.name} has ${team.purchases?.length || 0} purchases`);
   team.purchases.push({ player: player._id, price: bid.currentAmount });
-  // wallet remains as initial budget; remaining is computed as wallet - sum(purchases)
   await team.save();
+  console.log(`After purchase: ${team.name} has ${team.purchases?.length || 0} purchases, last price: ${bid.currentAmount}`);
+  // wallet remains as initial budget; remaining is computed as wallet - sum(purchases)
 
   // deactivate bid
   bid.active = false;

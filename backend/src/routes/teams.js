@@ -10,6 +10,7 @@ router.get('/', async (req, res) => {
     teams.map((t) => {
       const spent = (t.purchases || []).reduce((s, p) => s + (p.price || 0), 0);
       const remaining = Math.max(0, (t.wallet || 0) - spent);
+      console.log(`Team ${t.name}: wallet=${t.wallet}, purchases=${t.purchases?.length || 0}, spent=${spent}, remaining=${remaining}`);
       return {
         id: t._id,
         name: t.name,
