@@ -9,9 +9,9 @@ Tech stack: React (Vite) + Node.js + Express + MongoDB + Socket.io
 - **Admin screen**: Set global base price and raise increment, pick current player, sell to highest bidder, adjust team wallets.
 
 Rules remembered:
-- Base price default 2500 for all players.
+- Base price default 1000 for all players.
 - Min raise increment is controlled by admin.
-- Max a team can bid next = floor(remaining_wallet / (remaining_slots * 2500)) * 2500.
+- Max a team can bid next = floor(remaining_wallet / (remaining_slots * 1000)) * 1000.
 - No time limit per player.
 - Mobile responsive layout.
 
@@ -81,7 +81,7 @@ curl -X POST http://localhost:4000/api/players \
     "totalScore":350,
     "totalWicket":12,
     "strength":"All rounder",
-    "basePrice":2500,
+    "basePrice":1000,
     "photoUrl":"https://..."
   }'
 ```
