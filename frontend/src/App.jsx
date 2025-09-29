@@ -26,7 +26,7 @@ export default function App() {
             <Link to="/">Live Auction</Link>
             <Link to="/teams">Teams</Link>
             <Link to="/owner">Team Owner</Link>
-            {hasAdmin && <Link to="/admin">Admin</Link>}
+            <Link to="/admin">Admin</Link>
           </div>
         </div>
       </nav>
