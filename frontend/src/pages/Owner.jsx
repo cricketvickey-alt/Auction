@@ -16,6 +16,14 @@ export default function Owner() {
     return auth.currentBid?.amount || base
   }, [auth])
 
+  const liveMaxAllowed = useMemo(() => {
+    if (!auth?.team) return null
+    const base = auth.player?.basePrice || auth.basePrice
+    const slots = Math.max(0, (auth.team.remainingSlots ?? 0) - 1)
+    const max = (auth.team.remaining ?? 0) - slots * base
+    return Math.max(0, max)
+  }, [auth])
+
   const onLogin = async (e) => {
     e.preventDefault()
     setError('')
@@ -110,9 +118,10 @@ export default function Owner() {
   const disabled = useMemo(() => {
     if (!auth?.player) return true
     if (!auth?.team) return true
-    if (maxCap !== null && currentAmount + auth.minIncrement > maxCap) return true
+    const cap = (maxCap !== null) ? maxCap : liveMaxAllowed
+    if (cap !== null && currentAmount + auth.minIncrement > cap) return true
     return false
-  }, [auth, maxCap, currentAmount])
+  }, [auth, maxCap, liveMaxAllowed, currentAmount])
 
   return (
     <div className="card">
@@ -183,14 +192,14 @@ export default function Owner() {
                   <div>Base Price: ₹{auth.basePrice.toLocaleString('en-IN')}</div>
                   <div>Min Increment: ₹{auth.minIncrement.toLocaleString('en-IN')}</div>
                   <div style={{ marginTop: 12, fontSize: 18 }}>
-                    Current Bid: <b>₹{currentAmount.toLocaleString('en-IN')}</b>
+                    {auth.currentBid ? 'Current Bid' : 'Starting Price'}: <b>₹{currentAmount.toLocaleString('en-IN')}</b>
                     {auth.currentBid?.teamName && <span className="badge" style={{ marginLeft: 8 }}>Highest: {auth.currentBid.teamName}</span>}
                   </div>
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
                   <button onClick={doRaise} disabled={disabled || loading}>Raise +₹{auth.minIncrement.toLocaleString('en-IN')}</button>
-                  {maxCap !== null && (
-                    <span className="muted">Max allowed: ₹{maxCap.toLocaleString('en-IN')}</span>
+                  {(maxCap !== null || liveMaxAllowed !== null) && (
+                    <span className="muted">Max allowed: ₹{((maxCap !== null ? maxCap : liveMaxAllowed) || 0).toLocaleString('en-IN')}</span>
                   )}
                   {disabled && maxCap !== null && (
                     <span className="muted" style={{ color: '#ffcea8' }}>Max reached</span>

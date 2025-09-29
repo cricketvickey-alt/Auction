@@ -124,10 +124,10 @@ export default function User() {
                       boxShadow: pulse ? '0 0 0 6px rgba(79,156,255,0.12)' : '0 6px 20px rgba(0,0,0,0.25)',
                       transition: 'box-shadow 280ms ease'
                     }}>
-                    <div className="muted" style={{ fontSize: 12, letterSpacing: .4 }}>CURRENT BID</div>
+                    <div className="muted" style={{ fontSize: 12, letterSpacing: .4 }}>{state.currentBid ? 'CURRENT BID' : 'STARTING PRICE'}</div>
                     <div style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15 }}>₹{currentAmount?.toLocaleString('en-IN')}</div>
                   </div>
-                  {currentTeam && (
+                  {state.currentBid && currentTeam && (
                     <div className="badge" style={{ fontSize: 14 }}>Highest: {currentTeam}</div>
                   )}
                   <div className="badge" style={{ fontSize: 14 }}>Base: ₹{(p.basePrice || state.basePrice).toLocaleString('en-IN')}</div>
