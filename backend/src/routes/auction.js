@@ -26,8 +26,10 @@ async function getTeamState(team) {
 }
 
 function computeMaxAllowedBid(remainingWallet, remainingSlots, basePrice) {
-  const denom = Math.max(1, remainingSlots || 1) * basePrice;
-  return Math.floor(remainingWallet / denom) * basePrice;
+  // Keep at least basePrice for each of the remainingSlots - 1 (after buying current player)
+  const others = Math.max(0, (remainingSlots || 0) - 1);
+  const max = remainingWallet - (others * basePrice);
+  return Math.max(0, max);
 }
 
 const router = express.Router();
@@ -42,13 +44,13 @@ async function getLastSold() {
 router.get('/state', async (req, res) => {
   const settings = await Settings.findOne({});
   const player = settings?.currentPlayer ? await Player.findById(settings.currentPlayer) : null;
-  const bid = player ? await Bid.findOne({ player: player._id, active: true }).populate('currentTeam', 'name') : null;
+  const bid = player ? await Bid.findOne({ player: player._id, active: true }).populate('currentTeam', 'name logoUrl') : null;
   const lastSold = !player ? await getLastSold() : null;
   res.json({
     basePrice: settings?.basePrice || 2500,
     minIncrement: settings?.minIncrement || 500,
     player,
-    currentBid: bid ? { amount: bid.currentAmount, teamName: bid.currentTeam?.name || null } : null,
+    currentBid: bid ? { amount: bid.currentAmount, teamName: bid.currentTeam?.name || null, teamLogoUrl: bid.currentTeam?.logoUrl || null } : null,
     lastSold,
   });
 });
@@ -64,8 +66,8 @@ router.post('/team/login', async (req, res) => {
   const player = settings?.currentPlayer ? await Player.findById(settings.currentPlayer) : null;
   let bidInfo = null;
   if (player) {
-    const bid = await Bid.findOne({ player: player._id, active: true }).populate('currentTeam', 'name');
-    bidInfo = bid ? { amount: bid.currentAmount, teamName: bid.currentTeam?.name || null } : null;
+    const bid = await Bid.findOne({ player: player._id, active: true }).populate('currentTeam', 'name logoUrl');
+    bidInfo = bid ? { amount: bid.currentAmount, teamName: bid.currentTeam?.name || null, teamLogoUrl: bid.currentTeam?.logoUrl || null } : null;
   }
   const lastSold = !player ? await getLastSold() : null;
   res.json({
@@ -112,10 +114,10 @@ router.post('/bid/raise', async (req, res) => {
   bid.history.push({ team: team._id, amount: nextAmount });
   await bid.save();
 
-  const enriched = await Bid.findById(bid._id).populate('currentTeam', 'name');
-  emitAll('bid_updated', { playerId: String(player._id), amount: enriched.currentAmount, teamName: enriched.currentTeam?.name || null });
+  const enriched = await Bid.findById(bid._id).populate('currentTeam', 'name logoUrl');
+  emitAll('bid_updated', { playerId: String(player._id), amount: enriched.currentAmount, teamName: enriched.currentTeam?.name || null, teamLogoUrl: enriched.currentTeam?.logoUrl || null });
 
-  res.json({ ok: true, currentBid: { amount: enriched.currentAmount, teamName: enriched.currentTeam?.name || null }, maxAllowed });
+  res.json({ ok: true, currentBid: { amount: enriched.currentAmount, teamName: enriched.currentTeam?.name || null, teamLogoUrl: enriched.currentTeam?.logoUrl || null }, maxAllowed });
 });
 
 export async function setCurrentPlayer(playerId) {

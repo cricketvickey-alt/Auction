@@ -168,7 +168,13 @@ export default function Owner() {
           {auth.player && (
             <div className="row" style={{ marginTop: 12 }}>
               <div className="col" style={{ maxWidth: 220 }}>
-                <img src={auth.player.photoUrl || 'https://via.placeholder.com/200x260?text=Player'} alt="player" style={{ width: '100%', borderRadius: 8, border: '1px solid #1f2a44' }} />
+                <img
+                  src={auth.player.photoUrl || 'https://via.placeholder.com/200x260?text=Player'}
+                  alt="player"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://via.placeholder.com/200x260?text=Player' }}
+                  style={{ width: '100%', borderRadius: 8, border: '1px solid #1f2a44' }}
+                />
               </div>
               <div className="col">
                 <h3 style={{ marginTop: 0 }}>{auth.player.name} <span className="badge">Batch {auth.player.batch}</span></h3>

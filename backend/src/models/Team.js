@@ -15,6 +15,7 @@ const teamSchema = new mongoose.Schema(
     code: { type: String, required: true, unique: true }, // simple code access
     wallet: { type: Number, default: 100000 },
     maxPlayers: { type: Number, default: 15 }, // can be overridden per team
+    logoUrl: { type: String },
     purchases: [purchaseSchema],
   },
   { timestamps: true }

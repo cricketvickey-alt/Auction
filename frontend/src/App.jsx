@@ -4,6 +4,7 @@ import User from './pages/User.jsx'
 import Teams from './pages/Teams.jsx'
 import Owner from './pages/Owner.jsx'
 import Admin from './pages/Admin.jsx'
+import PlayersAdmin from './pages/PlayersAdmin.jsx'
 import { getAdminToken } from './lib/api.js'
 
 export default function App() {
@@ -26,7 +27,8 @@ export default function App() {
             <Link to="/">Live Auction</Link>
             <Link to="/teams">Teams</Link>
             <Link to="/owner">Team Owner</Link>
-            <Link to="/admin">Admin</Link>
+            {hasAdmin && <Link to="/admin">Admin</Link>}
+            {hasAdmin && <Link to="/admin/players">Players</Link>}
           </div>
         </div>
       </nav>
@@ -36,6 +38,7 @@ export default function App() {
           <Route path="/teams" element={<Teams />} />
           <Route path="/owner" element={<Owner />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/players" element={<PlayersAdmin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

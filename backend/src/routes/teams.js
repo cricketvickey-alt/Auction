@@ -3,18 +3,24 @@ import { Team } from '../models/Team.js';
 
 const router = express.Router();
 
-// List teams with basic info
+// List teams with basic info (include remaining and logo)
 router.get('/', async (req, res) => {
-  const teams = await Team.find({}).select('name wallet maxPlayers purchases createdAt updatedAt');
+  const teams = await Team.find({}).select('name wallet maxPlayers purchases logoUrl createdAt updatedAt');
   res.json(
-    teams.map((t) => ({
-      id: t._id,
-      name: t.name,
-      wallet: t.wallet,
-      maxPlayers: t.maxPlayers,
-      purchases: t.purchases?.length || 0,
-      remainingSlots: t.remainingSlots(),
-    }))
+    teams.map((t) => {
+      const spent = (t.purchases || []).reduce((s, p) => s + (p.price || 0), 0);
+      const remaining = Math.max(0, (t.wallet || 0) - spent);
+      return {
+        id: t._id,
+        name: t.name,
+        logoUrl: t.logoUrl || null,
+        wallet: t.wallet,
+        remaining,
+        maxPlayers: t.maxPlayers,
+        purchases: t.purchases?.length || 0,
+        remainingSlots: t.remainingSlots(),
+      };
+    })
   );
 });
 

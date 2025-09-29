@@ -78,6 +78,25 @@ export default function Admin() {
     } finally { setLoading(false) }
   }
 
+  const onRandom = async () => {
+    if (!players?.length) {
+      setMessage('No unsold players available')
+      setTimeout(() => setMessage(''), 2000)
+      return
+    }
+    const idx = Math.floor(Math.random() * players.length)
+    const chosen = players[idx]
+    setLoading(true)
+    try {
+      await setCurrentPlayer(chosen._id)
+      await load()
+      setMessage(`Selected randomly: ${chosen.name}`)
+      setTimeout(() => setMessage(''), 2000)
+    } catch (e) {
+      if (e?.response?.status === 401) setNeedsAuth(true)
+    } finally { setLoading(false) }
+  }
+
   const updateWallet = async (teamId, value) => {
     const amount = Number(value)
     if (Number.isNaN(amount)) return
@@ -160,7 +179,10 @@ export default function Admin() {
 
       <div className="row" style={{ marginTop: 16 }}>
         <div className="col">
-          <b>Select Next Player</b>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <b>Select Next Player</b>
+            <button onClick={onRandom} disabled={loading || !players.length}>Random Unsold</button>
+          </div>
           <div className="muted">Unsold players</div>
           <div style={{ maxHeight: 360, overflow: 'auto', marginTop: 8 }}>
             <table>

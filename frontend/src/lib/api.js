@@ -21,7 +21,7 @@ export function getAdminToken() {
 
 // Attach admin token to /admin requests
 api.interceptors.request.use((config) => {
-  if (config.url && config.url.startsWith('/admin')) {
+  if (config.url && (config.url.startsWith('/admin') || (config.url.startsWith('/players') && String(config.method).toLowerCase() !== 'get'))) {
     const token = getAdminToken()
     if (token) config.headers['x-admin-token'] = token
   }
@@ -36,6 +36,8 @@ export const raiseBid = (code) => api.post('/auction/bid/raise', { code }).then(
 // Players
 export const listPlayers = (params={}) => api.get('/players', { params }).then(r => r.data)
 export const createPlayer = (payload) => api.post('/players', payload).then(r => r.data)
+export const updatePlayer = (id, payload) => api.put(`/players/${id}`, payload).then(r => r.data)
+export const deletePlayer = (id) => api.delete(`/players/${id}`).then(r => r.data)
 
 // Teams
 export const listTeams = () => api.get('/teams').then(r => r.data)

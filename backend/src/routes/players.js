@@ -1,5 +1,6 @@
 import express from 'express';
 import { Player } from '../models/Player.js';
+import { adminAuth } from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create player
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
   try {
     const p = await Player.create(req.body);
     res.status(201).json(p);
@@ -31,11 +32,22 @@ router.post('/', async (req, res) => {
 });
 
 // Update player
-router.put('/:id', async (req, res) => {
+router.put('/:id', adminAuth, async (req, res) => {
   try {
     const p = await Player.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!p) return res.status(404).json({ error: 'not found' });
     res.json(p);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// Delete player
+router.delete('/:id', adminAuth, async (req, res) => {
+  try {
+    const p = await Player.findByIdAndDelete(req.params.id);
+    if (!p) return res.status(404).json({ error: 'not found' });
+    res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
