@@ -9,7 +9,7 @@ const playerSchema = new mongoose.Schema(
     totalScore: { type: Number, default: 0 },
     totalWicket: { type: Number, default: 0 },
     strength: { type: String, enum: ['Batsman', 'BattingAllrounder', 'Bowler', 'Bowling allrounder', 'All rounder'], required: true },
-    basePrice: { type: Number, default: 2500 },
+    basePrice: { type: Number, default: 1000 },
     photoUrl: { type: String },
     // auction state helpers
     sold: { type: Boolean, default: false },

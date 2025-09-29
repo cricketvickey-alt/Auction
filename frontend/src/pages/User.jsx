@@ -3,7 +3,7 @@ import { getAuctionState } from '../lib/api'
 import socket from '../lib/socket'
 
 export default function User() {
-  const [state, setState] = useState({ basePrice: 2500, minIncrement: 500, player: null, currentBid: null, lastSold: null })
+  const [state, setState] = useState({ basePrice: 1000, minIncrement: 500, player: null, currentBid: null, lastSold: null })
   const [pulse, setPulse] = useState(false)
 
   const load = async () => {

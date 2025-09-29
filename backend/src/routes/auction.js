@@ -47,7 +47,7 @@ router.get('/state', async (req, res) => {
   const bid = player ? await Bid.findOne({ player: player._id, active: true }).populate('currentTeam', 'name logoUrl') : null;
   const lastSold = !player ? await getLastSold() : null;
   res.json({
-    basePrice: settings?.basePrice || 2500,
+    basePrice: settings?.basePrice || 1000,
     minIncrement: settings?.minIncrement || 500,
     player,
     currentBid: bid ? { amount: bid.currentAmount, teamName: bid.currentTeam?.name || null, teamLogoUrl: bid.currentTeam?.logoUrl || null } : null,
@@ -72,7 +72,7 @@ router.post('/team/login', async (req, res) => {
   const lastSold = !player ? await getLastSold() : null;
   res.json({
     team: { id: team._id, name: team.name, wallet: team.wallet, maxPlayers: team.maxPlayers, ...teamState },
-    basePrice: settings?.basePrice || 2500,
+    basePrice: settings?.basePrice || 1000,
     minIncrement: settings?.minIncrement || 500,
     player,
     currentBid: bidInfo,
@@ -89,7 +89,7 @@ router.post('/bid/raise', async (req, res) => {
 
   const settings = await Settings.findOne({});
   if (!settings?.currentPlayer) return res.status(400).json({ error: 'no active player' });
-  const basePrice = settings.basePrice || 2500;
+  const basePrice = settings.basePrice || 1000;
   const minIncrement = settings.minIncrement || 500;
 
   const player = await Player.findById(settings.currentPlayer);

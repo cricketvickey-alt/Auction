@@ -12,7 +12,7 @@ const emptyForm = () => ({
   totalScore: 0,
   totalWicket: 0,
   strength: STRENGTH_OPTIONS[0],
-  basePrice: 2500,
+  basePrice: 1000,
   photoUrl: ''
 })
 
@@ -75,7 +75,7 @@ export default function PlayersAdmin() {
       totalScore: pl.totalScore ?? 0,
       totalWicket: pl.totalWicket ?? 0,
       strength: pl.strength || STRENGTH_OPTIONS[0],
-      basePrice: pl.basePrice ?? 2500,
+      basePrice: pl.basePrice ?? 1000,
       photoUrl: pl.photoUrl || ''
     })
   }

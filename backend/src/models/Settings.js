@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const settingsSchema = new mongoose.Schema(
   {
-    basePrice: { type: Number, default: 2500 },
+    basePrice: { type: Number, default: 1000 },
     minIncrement: { type: Number, default: 500 },
     maxPlayersPerTeam: { type: Number, default: 15 },
     currentPlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'Player' },
