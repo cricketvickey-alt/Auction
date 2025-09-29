@@ -166,13 +166,13 @@ export default function PlayersAdmin() {
               <input type="file" accept="image/*" onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (!file) return
-                // Compress client-side: resize to max 900px (long edge) and JPEG quality ~0.8, adjust down if > 350KB
+                // Compress client-side: resize to max 800px (long edge) and JPEG quality, target < 200KB
                 const img = new Image()
                 const url = URL.createObjectURL(file)
                 img.onload = () => {
                   const canvas = document.createElement('canvas')
                   const ctx = canvas.getContext('2d')
-                  const maxEdge = 900
+                  const maxEdge = 800
                   let { width, height } = img
                   if (width > height && width > maxEdge) {
                     height = Math.round((height * maxEdge) / width)
@@ -184,13 +184,13 @@ export default function PlayersAdmin() {
                   canvas.width = width
                   canvas.height = height
                   ctx.drawImage(img, 0, 0, width, height)
-                  let quality = 0.8
+                  let quality = 0.75
                   let dataUrl = canvas.toDataURL('image/jpeg', quality)
-                  // Try to keep under ~350KB by lowering quality
-                  const targetBytes = 350 * 1024
+                  // Try to keep under ~200KB by lowering quality (base64 adds ~37% overhead)
+                  const targetBytes = 200 * 1024
                   let attempts = 0
-                  while (dataUrl.length > targetBytes * 1.37 && quality > 0.4 && attempts < 4) { // rough base64 overhead factor ~1.37
-                    quality -= 0.1
+                  while (dataUrl.length > targetBytes * 1.37 && quality > 0.3 && attempts < 6) {
+                    quality -= 0.08
                     dataUrl = canvas.toDataURL('image/jpeg', quality)
                     attempts++
                   }
