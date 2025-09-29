@@ -137,3 +137,26 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# --- Monorepo specifics (backend/frontend) ---
+
+# Node modules per package
+/backend/node_modules/
+/frontend/node_modules/
+
+# Build output
+/frontend/dist/
+
+# Environment files (never commit secrets)
+/backend/.env
+/frontend/.env
+**/.env.local
+**/.env.development
+**/.env.production
+
+# Keep env examples tracked in any folder
+!.env.example
+!**/.env.example
+
+# OS files
+.DS_Store
