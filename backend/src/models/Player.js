@@ -4,7 +4,7 @@ const playerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     batch: { type: Number, min: 1, max: 30, required: true },
-    house: { type: String, enum: ['Aravali', 'Shivalik', 'Udaigiri', 'Nelgiri'], required: true },
+    house: { type: String, enum: ['Aravali', 'Shivalik', 'Udaigiri', 'Nilgiri'], required: true },
     totalMatchPlayed: { type: Number, default: 0 },
     totalScore: { type: Number, default: 0 },
     totalWicket: { type: Number, default: 0 },

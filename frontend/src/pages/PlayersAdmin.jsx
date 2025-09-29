@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { listPlayers, createPlayer, updatePlayer, deletePlayer, getAdminToken, setAdminToken } from '../lib/api'
 
-const HOUSE_OPTIONS = ['Aravali', 'Shivalik', 'Udaigiri', 'Nelgiri']
+const HOUSE_OPTIONS = ['Aravali', 'Shivalik', 'Udaigiri', 'Nilgiri']
 const STRENGTH_OPTIONS = ['Batsman', 'BattingAllrounder', 'Bowler', 'Bowling allrounder', 'All rounder']
 
 const emptyForm = () => ({

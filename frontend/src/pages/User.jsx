@@ -51,7 +51,7 @@ export default function User() {
   const houseBadgeStyle = (house) => {
     const map = {
       Aravali: { bg: '#0f2a60', border: '#2c4fa3', text: '#cfe2ff' }, // blue
-      Nelgiri: { bg: '#0d3a1f', border: '#2f7a43', text: '#c9ffdb' }, // green
+      Nilgiri: { bg: '#0d3a1f', border: '#2f7a43', text: '#c9ffdb' }, // green
       Udaigiri: { bg: '#4a3a07', border: '#b08a1f', text: '#ffe9a6' }, // yellow
       Shivalik: { bg: '#4a0f16', border: '#a33232', text: '#ffc9c9' }, // red
     }
