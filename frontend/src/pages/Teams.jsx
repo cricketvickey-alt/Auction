@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { listTeams, getTeam } from '../lib/api'
+import socket from '../lib/socket'
 
 export default function Teams() {
   const [teams, setTeams] = useState([])
@@ -18,7 +19,26 @@ export default function Teams() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+    // Refresh teams when a player is sold to update remaining amounts
+    const onPlayerSold = async () => {
+      await load()
+      // Also refresh any expanded team details
+      const expandedIds = Object.keys(expanded).filter(id => expanded[id] && expanded[id] !== 'loading')
+      for (const id of expandedIds) {
+        const detail = await getTeam(id)
+        setExpanded((e) => ({ ...e, [id]: detail }))
+      }
+    }
+    socket.on('player_sold', onPlayerSold)
+    // Polling fallback
+    const interval = setInterval(() => load(), 10000)
+    return () => {
+      socket.off('player_sold', onPlayerSold)
+      clearInterval(interval)
+    }
+  }, [expanded])
 
   const avatar = (team) => {
     const detail = expanded[team.id]
