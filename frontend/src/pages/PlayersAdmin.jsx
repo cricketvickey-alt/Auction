@@ -166,12 +166,42 @@ export default function PlayersAdmin() {
               <input type="file" accept="image/*" onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (!file) return
-                const reader = new FileReader()
-                reader.onload = () => {
-                  const dataUrl = reader.result
-                  setForm((f) => ({ ...f, photoUrl: typeof dataUrl === 'string' ? dataUrl : f.photoUrl }))
+                // Compress client-side: resize to max 900px (long edge) and JPEG quality ~0.8, adjust down if > 350KB
+                const img = new Image()
+                const url = URL.createObjectURL(file)
+                img.onload = () => {
+                  const canvas = document.createElement('canvas')
+                  const ctx = canvas.getContext('2d')
+                  const maxEdge = 900
+                  let { width, height } = img
+                  if (width > height && width > maxEdge) {
+                    height = Math.round((height * maxEdge) / width)
+                    width = maxEdge
+                  } else if (height >= width && height > maxEdge) {
+                    width = Math.round((width * maxEdge) / height)
+                    height = maxEdge
+                  }
+                  canvas.width = width
+                  canvas.height = height
+                  ctx.drawImage(img, 0, 0, width, height)
+                  let quality = 0.8
+                  let dataUrl = canvas.toDataURL('image/jpeg', quality)
+                  // Try to keep under ~350KB by lowering quality
+                  const targetBytes = 350 * 1024
+                  let attempts = 0
+                  while (dataUrl.length > targetBytes * 1.37 && quality > 0.4 && attempts < 4) { // rough base64 overhead factor ~1.37
+                    quality -= 0.1
+                    dataUrl = canvas.toDataURL('image/jpeg', quality)
+                    attempts++
+                  }
+                  setForm((f) => ({ ...f, photoUrl: dataUrl }))
+                  URL.revokeObjectURL(url)
                 }
-                reader.readAsDataURL(file)
+                img.onerror = () => {
+                  URL.revokeObjectURL(url)
+                }
+                img.referrerPolicy = 'no-referrer'
+                img.src = url
               }} />
             </div>
             {form.photoUrl && (
