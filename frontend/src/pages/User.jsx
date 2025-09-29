@@ -13,7 +13,11 @@ export default function User() {
 
   useEffect(() => {
     load()
-    const onBid = (p) => setState((s) => ({ ...s, currentBid: { amount: p.amount, teamName: p.teamName } }))
+    const onBid = (p) => setState((s) => {
+      // Only update if event is for the same current player
+      if (!s.player || !p?.playerId || String(s.player._id) !== String(p.playerId)) return s
+      return { ...s, currentBid: { amount: p.amount, teamName: p.teamName } }
+    })
     const onSettings = (p) => setState((s) => ({ ...s, minIncrement: p.minIncrement ?? s.minIncrement, basePrice: p.basePrice ?? s.basePrice }))
     const onPlayerChanged = () => load()
     const onSold = () => load()
@@ -21,11 +25,14 @@ export default function User() {
     socket.on('settings_updated', onSettings)
     socket.on('current_player_changed', onPlayerChanged)
     socket.on('player_sold', onSold)
+    // Polling fallback in case DB is altered without socket events
+    const id = setInterval(() => load(), 5000)
     return () => {
       socket.off('bid_updated', onBid)
       socket.off('settings_updated', onSettings)
       socket.off('current_player_changed', onPlayerChanged)
       socket.off('player_sold', onSold)
+      clearInterval(id)
     }
   }, [])
 

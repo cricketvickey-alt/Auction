@@ -63,7 +63,10 @@ export default function Owner() {
     }
   }
   useEffect(() => {
-    const onBid = (p) => setAuth((s) => (s ? { ...s, currentBid: { amount: p.amount, teamName: p.teamName } } : s))
+    const onBid = (p) => setAuth((s) => {
+      if (!s?.player || !p?.playerId || String(s.player._id) !== String(p.playerId)) return s
+      return { ...s, currentBid: { amount: p.amount, teamName: p.teamName } }
+    })
     const onSettings = (p) => setAuth((s) => (s ? { ...s, minIncrement: p.minIncrement ?? s.minIncrement, basePrice: p.basePrice ?? s.basePrice } : s))
     const refreshOn = () => {
       if (!code) return
@@ -81,11 +84,13 @@ export default function Owner() {
     socket.on('settings_updated', onSettings)
     socket.on('current_player_changed', refreshOn)
     socket.on('player_sold', refreshOn)
+    const id = setInterval(() => { if (code) teamLogin(code.trim()).then(setAuth).catch(() => {}) }, 5000)
     return () => {
       socket.off('bid_updated', onBid)
       socket.off('settings_updated', onSettings)
       socket.off('current_player_changed', refreshOn)
       socket.off('player_sold', refreshOn)
+      clearInterval(id)
     }
   }, [code])
 
