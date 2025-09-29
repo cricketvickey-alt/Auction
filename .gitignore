@@ -146,6 +146,7 @@ vite.config.ts.timestamp-*
 
 # Build output
 /frontend/dist/
+/frontend/.vite/
 
 # Environment files (never commit secrets)
 /backend/.env
