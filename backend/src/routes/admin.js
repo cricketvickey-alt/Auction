@@ -77,6 +77,17 @@ router.post('/sell', async (req, res) => {
   res.json({ ok: true, playerId: player._id, team: { id: team._id, name: team.name }, price: bid.currentAmount });
 });
 
+// Reset live auction: clear current player and active bids
+router.post('/reset', async (req, res) => {
+  const settings = (await Settings.findOne({})) || new Settings({});
+  settings.currentPlayer = null;
+  await settings.save();
+  await Bid.deleteMany({ active: true });
+  const ioInst = getIO();
+  if (ioInst) ioInst.emit('current_player_changed', { playerId: null });
+  res.json({ ok: true });
+});
+
 // Adjust team wallet directly
 router.put('/team/:id/wallet', async (req, res) => {
   const { amount } = req.body; // absolute wallet amount
