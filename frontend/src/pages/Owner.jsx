@@ -193,6 +193,25 @@ export default function Owner() {
               <div className="col">
                 <h3 style={{ marginTop: 0 }}>{auth.player.name} <span className="badge">Batch {auth.player.batch}</span></h3>
                 <p className="muted">House: {auth.player.house} • Strength: {auth.player.strength}</p>
+                
+                <div style={{ marginTop: 12, padding: 12, background: '#0f1728', borderRadius: 8, border: '1px solid #1f2a44' }}>
+                  <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Player Stats</div>
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                    <div>
+                      <div className="muted" style={{ fontSize: 11 }}>Matches</div>
+                      <div style={{ fontWeight: 700 }}>{auth.player.totalMatchPlayed || 0}</div>
+                    </div>
+                    <div>
+                      <div className="muted" style={{ fontSize: 11 }}>Runs</div>
+                      <div style={{ fontWeight: 700 }}>{auth.player.totalScore || 0}</div>
+                    </div>
+                    <div>
+                      <div className="muted" style={{ fontSize: 11 }}>Wickets</div>
+                      <div style={{ fontWeight: 700 }}>{auth.player.totalWicket || 0}</div>
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ marginTop: 12 }}>
                   <div>Base Price: ₹{auth.basePrice.toLocaleString('en-IN')}</div>
                   <div>Min Increment: ₹{auth.minIncrement.toLocaleString('en-IN')}</div>
