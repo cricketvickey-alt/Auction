@@ -8,6 +8,7 @@ const emptyForm = () => ({
   name: '',
   batch: 1,
   house: HOUSE_OPTIONS[0],
+  phoneNumber: '',
   totalMatchPlayed: 0,
   totalScore: 0,
   totalWicket: 0,
@@ -25,6 +26,7 @@ export default function PlayersAdmin() {
   const [needsAuth, setNeedsAuth] = useState(!getAdminToken())
   const [tokenInput, setTokenInput] = useState('')
   const [filter, setFilter] = useState('all') // all | sold | unsold
+  const [searchQuery, setSearchQuery] = useState('')
 
   const load = async () => {
     try {
@@ -47,17 +49,23 @@ export default function PlayersAdmin() {
   const onSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setMessage('')
     try {
       if (editingId) {
-        await updatePlayer(editingId, { ...form, batch: Number(form.batch), basePrice: Number(form.basePrice), totalMatchPlayed: Number(form.totalMatchPlayed), totalScore: Number(form.totalScore), totalWicket: Number(form.totalWicket) })
+        const updated = await updatePlayer(editingId, { ...form, batch: Number(form.batch), basePrice: Number(form.basePrice), totalMatchPlayed: Number(form.totalMatchPlayed), totalScore: Number(form.totalScore), totalWicket: Number(form.totalWicket) })
         setMessage('Player updated')
+        // Update the player in the list immediately for instant feedback
+        setPlayers(prev => prev.map(p => p._id === editingId ? updated : p))
       } else {
-        await createPlayer({ ...form, batch: Number(form.batch), basePrice: Number(form.basePrice), totalMatchPlayed: Number(form.totalMatchPlayed), totalScore: Number(form.totalScore), totalWicket: Number(form.totalWicket) })
+        const created = await createPlayer({ ...form, batch: Number(form.batch), basePrice: Number(form.basePrice), totalMatchPlayed: Number(form.totalMatchPlayed), totalScore: Number(form.totalScore), totalWicket: Number(form.totalWicket) })
         setMessage('Player created')
+        // Add new player to the list immediately
+        setPlayers(prev => [...prev, created])
       }
       setForm(emptyForm())
       setEditingId('')
-      await load()
+      // Reload to ensure consistency with backend
+      setTimeout(() => load(), 100)
       setTimeout(() => setMessage(''), 2000)
     } catch (e) {
       if (e?.response?.status === 401) setNeedsAuth(true)
@@ -71,6 +79,7 @@ export default function PlayersAdmin() {
       name: pl.name || '',
       batch: pl.batch ?? 1,
       house: pl.house || HOUSE_OPTIONS[0],
+      phoneNumber: pl.phoneNumber || '',
       totalMatchPlayed: pl.totalMatchPlayed ?? 0,
       totalScore: pl.totalScore ?? 0,
       totalWicket: pl.totalWicket ?? 0,
@@ -78,7 +87,26 @@ export default function PlayersAdmin() {
       basePrice: pl.basePrice ?? 1000,
       photoUrl: pl.photoUrl || ''
     })
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  const onCancelEdit = () => {
+    setEditingId('')
+    setForm(emptyForm())
+  }
+
+  // Filter players by search query
+  const filteredPlayers = useMemo(() => {
+    if (!searchQuery.trim()) return players
+    const query = searchQuery.toLowerCase()
+    return players.filter(pl => 
+      pl.name?.toLowerCase().includes(query) ||
+      pl.house?.toLowerCase().includes(query) ||
+      pl.strength?.toLowerCase().includes(query) ||
+      String(pl.batch).includes(query)
+    )
+  }, [players, searchQuery])
 
   const onDelete = async (id) => {
     if (!confirm('Delete this player? This cannot be undone.')) return
@@ -120,6 +148,11 @@ export default function PlayersAdmin() {
       {!needsAuth && (
         <>
           {/* Create / Edit Form */}
+          {editingId && (
+            <div style={{ padding: 8, background: '#1a2942', borderRadius: 8, marginTop: 8, border: '1px solid #2e4370' }}>
+              <span style={{ fontSize: 13, color: '#8fb4ff' }}>✏️ Editing Player</span>
+            </div>
+          )}
           <form onSubmit={onSubmit} className="row" style={{ gap: 12, alignItems: 'end', marginTop: 8 }}>
             <div className="col" style={{ maxWidth: 220 }}>
               <label className="muted">Name</label>
@@ -127,13 +160,17 @@ export default function PlayersAdmin() {
             </div>
             <div className="col" style={{ maxWidth: 120 }}>
               <label className="muted">Batch</label>
-              <input type="number" value={form.batch} min={1} max={30} onChange={e => setForm({ ...form, batch: e.target.value })} required />
+              <input type="number" value={form.batch} min={1} max={31} onChange={e => setForm({ ...form, batch: e.target.value })} required />
             </div>
             <div className="col" style={{ maxWidth: 160 }}>
               <label className="muted">House</label>
               <select value={form.house} onChange={e => setForm({ ...form, house: e.target.value })}>
                 {HOUSE_OPTIONS.map(h => <option key={h} value={h}>{h}</option>)}
               </select>
+            </div>
+            <div className="col" style={{ maxWidth: 180 }}>
+              <label className="muted">Phone Number</label>
+              <input type="tel" value={form.phoneNumber} onChange={e => setForm({ ...form, phoneNumber: e.target.value })} placeholder="+91 1234567890" />
             </div>
             <div className="col" style={{ maxWidth: 200 }}>
               <label className="muted">Strength</label>
@@ -214,16 +251,16 @@ export default function PlayersAdmin() {
               <button type="submit" disabled={loading}>{editingId ? 'Update Player' : 'Create Player'}</button>
             </div>
             {editingId && (
-              <div>
-                <button type="button" onClick={() => { setEditingId(''); setForm(emptyForm()) }}>Cancel</button>
+              <div style={{ minWidth: 120 }}>
+                <button type="button" onClick={onCancelEdit} disabled={loading}>Cancel</button>
               </div>
             )}
           </form>
 
           {message && <div className="muted" style={{ marginTop: 8 }}>{message}</div>}
 
-          {/* Filters */}
-          <div className="row" style={{ marginTop: 16, alignItems: 'center' }}>
+          {/* Filters and Search */}
+          <div className="row" style={{ marginTop: 16, alignItems: 'end', gap: 12 }}>
             <div className="col" style={{ maxWidth: 260 }}>
               <label className="muted">Filter</label>
               <select value={filter} onChange={e => setFilter(e.target.value)}>
@@ -232,7 +269,26 @@ export default function PlayersAdmin() {
                 <option value="sold">Sold</option>
               </select>
             </div>
+            <div className="col" style={{ maxWidth: 320 }}>
+              <label className="muted">Search</label>
+              <input 
+                type="text" 
+                placeholder="Search by name, house, strength, batch..." 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+            {searchQuery && (
+              <div style={{ minWidth: 100 }}>
+                <button onClick={() => setSearchQuery('')}>Clear</button>
+              </div>
+            )}
           </div>
+          {searchQuery && (
+            <div className="muted" style={{ marginTop: 8, fontSize: 13 }}>
+              Found {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''}
+            </div>
+          )}
 
           {/* List */}
           <div style={{ marginTop: 8 }}>
@@ -249,7 +305,7 @@ export default function PlayersAdmin() {
                 </tr>
               </thead>
               <tbody>
-                {players.map(pl => (
+                {filteredPlayers.map(pl => (
                   <tr key={pl._id}>
                     <td>{pl.name}</td>
                     <td>{pl.batch}</td>
@@ -271,7 +327,7 @@ export default function PlayersAdmin() {
                     </td>
                   </tr>
                 ))}
-                {!players.length && (
+                {!filteredPlayers.length && (
                   <tr><td colSpan={7} className="muted">No players</td></tr>
                 )}
               </tbody>

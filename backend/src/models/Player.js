@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 const playerSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    batch: { type: Number, min: 1, max: 30, required: true },
+    batch: { type: Number, min: 1, max: 31, required: true },
     house: { type: String, enum: ['Aravali', 'Shivalik', 'Udaigiri', 'Nilgiri'], required: true },
+    phoneNumber: { type: String },
     totalMatchPlayed: { type: Number, default: 0 },
     totalScore: { type: Number, default: 0 },
     totalWicket: { type: Number, default: 0 },
