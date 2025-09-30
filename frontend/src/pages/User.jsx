@@ -109,6 +109,7 @@ export default function User() {
                 <div style={{ marginTop: 6, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                   <span className="badge" style={{ ...houseBadgeStyle(p.house) }}>{p.house}</span>
                   <span className="badge">{p.strength}</span>
+                  {p.phoneNumber && <span className="badge">📱 {p.phoneNumber}</span>}
                 </div>
               </div>
 

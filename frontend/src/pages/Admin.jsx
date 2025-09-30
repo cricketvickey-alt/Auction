@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getSettings, updateSettings, listPlayers, setCurrentPlayer, sellPlayer, listTeams, setTeamWallet, getAdminToken, setAdminToken } from '../lib/api'
+import { getSettings, updateSettings, listPlayers, setCurrentPlayer, sellPlayer, sellPlayerDirect, listTeams, setTeamWallet, getAdminToken, setAdminToken } from '../lib/api'
 import socket from '../lib/socket'
 
 export default function Admin() {
@@ -10,6 +10,7 @@ export default function Admin() {
   const [teams, setTeams] = useState([])
   const [tokenInput, setTokenInput] = useState('')
   const [needsAuth, setNeedsAuth] = useState(!getAdminToken())
+  const [playerSearch, setPlayerSearch] = useState('')
 
   const load = async () => {
     try {
@@ -44,6 +45,17 @@ export default function Admin() {
 
   const currentPlayer = useMemo(() => players.find(pl => String(pl._id) === String(settings?.currentPlayer)) || null, [players, settings])
 
+  const filteredPlayers = useMemo(() => {
+    if (!playerSearch.trim()) return players
+    const query = playerSearch.toLowerCase()
+    return players.filter(pl => 
+      pl.name?.toLowerCase().includes(query) ||
+      pl.house?.toLowerCase().includes(query) ||
+      pl.strength?.toLowerCase().includes(query) ||
+      String(pl.batch).includes(query)
+    )
+  }, [players, playerSearch])
+
   const saveSettings = async () => {
     setLoading(true)
     try {
@@ -71,6 +83,23 @@ export default function Admin() {
       await sellPlayer()
       await load()
       setMessage('Player sold')
+      setTimeout(() => setMessage(''), 2000)
+    } catch (e) {
+      setMessage(e.response?.data?.error || 'Sell failed')
+      setTimeout(() => setMessage(''), 3000)
+    } finally { setLoading(false) }
+  }
+
+  const onSellDirect = async (teamId) => {
+    if (!currentPlayer) return
+    const teamName = teams.find(t => t.id === teamId)?.name || 'this team'
+    if (!confirm(`Sell ${currentPlayer.name} to ${teamName} at base price (₹${currentPlayer.basePrice || settings?.basePrice || 1000})?`)) return
+    
+    setLoading(true)
+    try {
+      await sellPlayerDirect(teamId)
+      await load()
+      setMessage(`Player sold to ${teamName}`)
       setTimeout(() => setMessage(''), 2000)
     } catch (e) {
       setMessage(e.response?.data?.error || 'Sell failed')
@@ -167,7 +196,22 @@ export default function Admin() {
                     <div><b>{currentPlayer.name}</b></div>
                     <div className="muted">Batch {currentPlayer.batch} • {currentPlayer.house} • {currentPlayer.strength}</div>
                     <div style={{ marginTop: 8 }}>
-                      <button onClick={onSell} disabled={loading}>Sell to current highest bidder</button>
+                      <button onClick={onSell} disabled={loading}>Sell to highest bidder</button>
+                    </div>
+                    <div style={{ marginTop: 12 }}>
+                      <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Or sell directly to team:</div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        {teams.map(t => (
+                          <button 
+                            key={t.id} 
+                            onClick={() => onSellDirect(t.id)} 
+                            disabled={loading}
+                            style={{ fontSize: 12, padding: '6px 10px' }}
+                          >
+                            {t.name}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -179,12 +223,33 @@ export default function Admin() {
 
       <div className="row" style={{ marginTop: 16 }}>
         <div className="col">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 8 }}>
             <b>Select Next Player</b>
             <button onClick={onRandom} disabled={loading || !players.length}>Random Unsold</button>
           </div>
-          <div className="muted">Unsold players</div>
-          <div style={{ maxHeight: 360, overflow: 'auto', marginTop: 8 }}>
+          <div className="row" style={{ alignItems: 'end', gap: 8, marginBottom: 8 }}>
+            <div className="col" style={{ maxWidth: 280 }}>
+              <label className="muted" style={{ fontSize: 12 }}>Search Players</label>
+              <input 
+                type="text" 
+                placeholder="Search by name, house, strength, batch..." 
+                value={playerSearch} 
+                onChange={e => setPlayerSearch(e.target.value)}
+                style={{ fontSize: 13 }}
+              />
+            </div>
+            {playerSearch && (
+              <div style={{ minWidth: 80 }}>
+                <button onClick={() => setPlayerSearch('')} style={{ fontSize: 12, padding: '6px 10px' }}>Clear</button>
+              </div>
+            )}
+          </div>
+          {playerSearch && (
+            <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>
+              Found {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''}
+            </div>
+          )}
+          <div style={{ maxHeight: 360, overflow: 'auto' }}>
             <table>
               <thead>
                 <tr>
@@ -195,7 +260,7 @@ export default function Admin() {
                 </tr>
               </thead>
               <tbody>
-                {players.map(pl => (
+                {filteredPlayers.map(pl => (
                   <tr key={pl._id}>
                     <td>{pl.name}</td>
                     <td>{pl.house}</td>
@@ -203,7 +268,7 @@ export default function Admin() {
                     <td><button disabled={loading} onClick={() => onSelectPlayer(pl._id)}>Set Current</button></td>
                   </tr>
                 ))}
-                {!players.length && <tr><td colSpan={4} className="muted">No players available</td></tr>}
+                {!filteredPlayers.length && <tr><td colSpan={4} className="muted">No players found</td></tr>}
               </tbody>
             </table>
           </div>

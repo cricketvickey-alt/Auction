@@ -79,6 +79,46 @@ router.post('/sell', async (req, res) => {
   res.json({ ok: true, playerId: player._id, team: { id: team._id, name: team.name }, price: bid.currentAmount });
 });
 
+// Sell current player directly to a specific team (without bids)
+router.post('/sell-direct', async (req, res) => {
+  const { teamId, price } = req.body;
+  if (!teamId) return res.status(400).json({ error: 'teamId required' });
+  
+  const settings = await Settings.findOne({});
+  if (!settings?.currentPlayer) return res.status(400).json({ error: 'no active player to sell' });
+  
+  const player = await Player.findById(settings.currentPlayer);
+  if (!player) return res.status(404).json({ error: 'player not found' });
+  
+  const team = await Team.findById(teamId);
+  if (!team) return res.status(404).json({ error: 'team not found' });
+  
+  // Use provided price or player's base price
+  const salePrice = price !== undefined ? Number(price) : (player.basePrice || settings.basePrice || 1000);
+  
+  // Mark player sold
+  player.sold = true;
+  player.soldToTeam = team._id;
+  player.soldPrice = salePrice;
+  await player.save();
+  
+  // Add purchase to team
+  team.purchases.push({ player: player._id, price: salePrice });
+  await team.save();
+  
+  // Deactivate any existing bids for this player
+  await Bid.updateMany({ player: player._id, active: true }, { active: false });
+  
+  // Clear current player in settings
+  settings.currentPlayer = null;
+  await settings.save();
+  
+  const ioInst = getIO();
+  if (ioInst) ioInst.emit('player_sold', { playerId: String(player._id), teamName: team.name, price: salePrice });
+  
+  res.json({ ok: true, playerId: player._id, team: { id: team._id, name: team.name }, price: salePrice });
+});
+
 // Reset live auction: clear current player and active bids
 router.post('/reset', async (req, res) => {
   const settings = (await Settings.findOne({})) || new Settings({});

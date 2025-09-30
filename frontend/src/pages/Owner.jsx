@@ -192,7 +192,10 @@ export default function Owner() {
               </div>
               <div className="col">
                 <h3 style={{ marginTop: 0 }}>{auth.player.name} <span className="badge">Batch {auth.player.batch}</span></h3>
-                <p className="muted">House: {auth.player.house} • Strength: {auth.player.strength}</p>
+                <p className="muted">
+                  House: {auth.player.house} • Strength: {auth.player.strength}
+                  {auth.player.phoneNumber && <> • 📱 {auth.player.phoneNumber}</>}
+                </p>
                 
                 <div style={{ marginTop: 12, padding: 12, background: '#0f1728', borderRadius: 8, border: '1px solid #1f2a44' }}>
                   <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Player Stats</div>
