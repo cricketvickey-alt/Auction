@@ -46,7 +46,7 @@ export default function Teams() {
     if (logo) return <img src={logo} alt={team.name} style={{ width: 80, height: 80, borderRadius: 12, border: '2px solid #2e4370', objectFit: 'cover' }} />
     const initials = team.name.split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase()
     return (
-      <div style={{ width: 80, height: 80, borderRadius: 12, border: '2px solid #2e4370', background: '#0e1b34', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 24 }}>
+      <div style={{ width: 130, height: 130, borderRadius: 12, border: '2px solid #2e4370', background: '#0e1b34', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: 24 }}>
         {initials}
       </div>
     )
