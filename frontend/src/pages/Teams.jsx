@@ -56,6 +56,8 @@ export default function Teams() {
     const detail = expanded[t.id]
     const spent = detail && detail !== 'loading' ? (detail.purchases || []).reduce((s, p) => s + p.price, 0) : null
     const remaining = spent !== null ? Math.max(0, detail.wallet - spent) : (typeof t.remaining === 'number' ? t.remaining : t.wallet)
+    const playerAvatars = detail && detail !== 'loading' ? detail.purchases || [] : []
+    
     return (
       <div key={t.id} style={{ border: '1px solid #1f2a44', borderRadius: 12, padding: 12, background: '#0f1728' }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
@@ -69,6 +71,45 @@ export default function Teams() {
           <div className="badge">Remaining ₹{remaining.toLocaleString('en-IN')}</div>
         </div>
 
+        {/* Player Avatars - Show only when collapsed */}
+        {!expanded[t.id] && playerAvatars.length > 0 && (
+          <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+            {playerAvatars.slice(0, 15).map((p, i) => (
+              <img 
+                key={i}
+                src={p.player?.photoUrl || 'https://via.placeholder.com/50?text=P'} 
+                alt={p.player?.name}
+                title={p.player?.name}
+                referrerPolicy="no-referrer"
+                onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/50?text=P' }}
+                style={{ 
+                  width: 50, 
+                  height: 50, 
+                  borderRadius: '50%', 
+                  objectFit: 'cover', 
+                  border: '2px solid #2e4370',
+                  cursor: 'pointer'
+                }}
+              />
+            ))}
+            {playerAvatars.length > 15 && (
+              <div style={{ 
+                width: 50, 
+                height: 50, 
+                borderRadius: '50%', 
+                background: '#1a2942', 
+                border: '2px solid #2e4370',
+                display: 'grid',
+                placeItems: 'center',
+                fontWeight: 700,
+                fontSize: 14
+              }}>
+                +{playerAvatars.length - 15}
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={{ marginTop: 10 }}>
           <button onClick={() => toggle(t.id)}>{expanded[t.id] ? 'Hide' : 'View Purchases'}</button>
         </div>
@@ -80,8 +121,33 @@ export default function Teams() {
         {expanded[t.id] && expanded[t.id] !== 'loading' && (
           <div style={{ marginTop: 12 }}>
             <b>Purchases</b>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ marginTop: 8, minWidth: 420 }}>
+            
+            {/* Player Avatars Grid in expanded view */}
+            {detail.purchases?.length > 0 && (
+              <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                {detail.purchases.map((p, i) => (
+                  <img 
+                    key={i}
+                    src={p.player?.photoUrl || 'https://via.placeholder.com/50?text=P'} 
+                    alt={p.player?.name}
+                    title={p.player?.name}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/50?text=P' }}
+                    style={{ 
+                      width: 50, 
+                      height: 50, 
+                      borderRadius: '50%', 
+                      objectFit: 'cover', 
+                      border: '2px solid #2e4370',
+                      cursor: 'pointer'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            
+            <div style={{ overflowX: 'auto', marginTop: 12 }}>
+              <table style={{ minWidth: 420 }}>
                 <thead>
                   <tr>
                     <th>Player</th>

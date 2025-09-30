@@ -12,17 +12,38 @@ import { adminAuth } from './middleware/adminAuth.js';
 
 const app = express();
 const server = http.createServer(app);
+
+// Socket.IO with CORS
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'https://112c94d4a91d.ngrok-free.app',
+      /\.ngrok-free\.app$/,
+      /\.ngrok\.io$/,
+      /\.vercel\.app$/  // Allow all Vercel deployments
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   },
 });
 
 // Init shared socket reference
 initAuctionSockets(io);
 
-app.use(cors({ origin: process.env.CORS_ORIGIN?.split(',') || '*', credentials: true }));
+// Express CORS middleware
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://112c94d4a91d.ngrok-free.app',
+    /\.ngrok-free\.app$/,
+    /\.ngrok\.io$/,
+    /\.vercel\.app$/  // Allow all Vercel deployments
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
