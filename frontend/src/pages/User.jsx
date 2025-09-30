@@ -136,7 +136,20 @@ export default function User() {
                     <div style={{ fontSize: 32, fontWeight: 800, lineHeight: 1.15 }}>₹{currentAmount?.toLocaleString('en-IN')}</div>
                   </div>
                   {state.currentBid && currentTeam && (
-                    <div className="badge" style={{ fontSize: 14 }}>Highest: {currentTeam}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#0f1728', borderRadius: 10, border: '1px solid #2e4370' }}>
+                      {state.currentBid.teamLogoUrl && (
+                        <img 
+                          src={state.currentBid.teamLogoUrl} 
+                          alt={currentTeam}
+                          style={{ width: 80, height: 80, borderRadius: 8, objectFit: 'cover', border: '1px solid #2e4370' }}
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      )}
+                      <div>
+                        <div className="muted" style={{ fontSize: 11 }}>Highest Bidder</div>
+                        <div style={{ fontWeight: 700, fontSize: 15 }}>{currentTeam}</div>
+                      </div>
+                    </div>
                   )}
                   <div className="badge" style={{ fontSize: 14 }}>Base: ₹{(p.basePrice || state.basePrice).toLocaleString('en-IN')}</div>
                 </div>
