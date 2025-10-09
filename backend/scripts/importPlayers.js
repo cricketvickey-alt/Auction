@@ -19,7 +19,7 @@ const COLUMN_MAPPING = {
   name: 'Name',                                                            // Excel column name for player name
   batch: 'Batch',                                                          // Excel column name for batch number
   house: 'House',                                                          // Excel column name for house
-  phoneNumber: 'Enter the Phone number (Must be registered with CricHeroes App)',  // Excel column name for phone number
+  phoneNumber: 'Enter the Phone number (Must be registered with  CricHeroes   App)',  // Excel column name for phone number (note: extra spaces)
   totalMatchPlayed: 'Matches',                                             // Excel column name for matches played (if exists)
   totalScore: 'Runs',                                                      // Excel column name for total runs (if exists)
   totalWicket: 'Wickets',                                                  // Excel column name for total wickets (if exists)
@@ -101,6 +101,11 @@ function parseRow(row, rowIndex) {
   const totalWicket = parseNumber(row[COLUMN_MAPPING.totalWicket], 0);
   const basePrice = parseNumber(row[COLUMN_MAPPING.basePrice], 1000);
   const photoUrl = row[COLUMN_MAPPING.photoUrl]?.toString().trim() || '';
+  
+  // Debug: Log phone number if present
+  if (phoneNumber) {
+    console.log(`  Phone: ${phoneNumber}`);
+  }
   
   return {
     player: {

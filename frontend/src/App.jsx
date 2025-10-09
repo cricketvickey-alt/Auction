@@ -5,6 +5,10 @@ import Teams from './pages/Teams.jsx'
 import Owner from './pages/Owner.jsx'
 import Admin from './pages/Admin.jsx'
 import PlayersAdmin from './pages/PlayersAdmin.jsx'
+import PlayerRegistration from './pages/PlayerRegistration.jsx'
+import AdminLogin from './pages/AdminLogin.jsx'
+import FormBuilder from './pages/FormBuilder.jsx'
+import FormSubmissions from './pages/FormSubmissions.jsx'
 import { getAdminToken } from './lib/api.js'
 
 export default function App() {
@@ -26,6 +30,7 @@ export default function App() {
           <div className="navlinks">
             <Link to="/">Live Auction</Link>
             <Link to="/teams">Teams</Link>
+            <Link to="/register">Register</Link>
             <Link to="/owner">Team Owner</Link>
              <Link to="/admin">Admin</Link>
            <Link to="/admin/players">Players</Link>
@@ -36,9 +41,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<User />} />
           <Route path="/teams" element={<Teams />} />
+          <Route path="/register" element={<PlayerRegistration />} />
           <Route path="/owner" element={<Owner />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/players" element={<PlayersAdmin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/form-builder" element={<FormBuilder />} />
+          <Route path="/admin/submissions/:formId" element={<FormSubmissions />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

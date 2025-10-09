@@ -75,22 +75,43 @@ export default function Teams() {
         {!expanded[t.id] && playerAvatars.length > 0 && (
           <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
             {playerAvatars.slice(0, 15).map((p, i) => (
-              <img 
-                key={i}
-                src={p.player?.photoUrl || 'https://via.placeholder.com/50?text=P'} 
-                alt={p.player?.name}
-                title={p.player?.name}
-                referrerPolicy="no-referrer"
-                onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/50?text=P' }}
-                style={{ 
-                  width: 50, 
-                  height: 50, 
-                  borderRadius: '50%', 
-                  objectFit: 'cover', 
-                  border: '2px solid #2e4370',
-                  cursor: 'pointer'
-                }}
-              />
+              p.player?.photoUrl ? (
+                <img 
+                  key={i}
+                  src={p.player.photoUrl} 
+                  alt={p.player?.name}
+                  title={p.player?.name}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                  style={{ 
+                    width: 50, 
+                    height: 50, 
+                    borderRadius: '50%', 
+                    objectFit: 'cover', 
+                    border: '2px solid #2e4370',
+                    cursor: 'pointer'
+                  }}
+                />
+              ) : (
+                <div 
+                  key={i}
+                  title={p.player?.name}
+                  style={{ 
+                    width: 50, 
+                    height: 50, 
+                    borderRadius: '50%', 
+                    border: '2px solid #2e4370',
+                    background: '#1a2942',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontSize: 20,
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {p.player?.name?.charAt(0)?.toUpperCase() || 'P'}
+                </div>
+              )
             ))}
             {playerAvatars.length > 15 && (
               <div style={{ 
@@ -126,31 +147,56 @@ export default function Teams() {
             {detail.purchases?.length > 0 && (
               <div style={{ marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                 {detail.purchases.map((p, i) => (
-                  <img 
-                    key={i}
-                    src={p.player?.photoUrl || 'https://via.placeholder.com/50?text=P'} 
-                    alt={p.player?.name}
-                    title={p.player?.name}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/50?text=P' }}
-                    style={{ 
-                      width: 50, 
-                      height: 50, 
-                      borderRadius: '50%', 
-                      objectFit: 'cover', 
-                      border: '2px solid #2e4370',
-                      cursor: 'pointer'
-                    }}
-                  />
+                  p.player?.photoUrl ? (
+                    <img 
+                      key={i}
+                      src={p.player.photoUrl} 
+                      alt={p.player?.name}
+                      title={p.player?.name}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => { e.currentTarget.style.display = 'none' }}
+                      style={{ 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: '50%', 
+                        objectFit: 'cover', 
+                        border: '2px solid #2e4370',
+                        cursor: 'pointer'
+                      }}
+                    />
+                  ) : (
+                    <div 
+                      key={i}
+                      title={p.player?.name}
+                      style={{ 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: '50%', 
+                        border: '2px solid #2e4370',
+                        background: '#1a2942',
+                        display: 'grid',
+                        placeItems: 'center',
+                        fontSize: 20,
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {p.player?.name?.charAt(0)?.toUpperCase() || 'P'}
+                    </div>
+                  )
                 ))}
               </div>
             )}
             
             <div style={{ overflowX: 'auto', marginTop: 12 }}>
-              <table style={{ minWidth: 420 }}>
+              <table style={{ minWidth: 600 }}>
                 <thead>
                   <tr>
+                    <th></th>
                     <th>Player</th>
+                    <th>Role</th>
+                    <th>Batch</th>
+                    <th>Phone</th>
                     <th>House</th>
                     <th>Strength</th>
                     <th>Price</th>
@@ -159,14 +205,116 @@ export default function Teams() {
                 <tbody>
                   {detail.purchases?.map((p, i) => (
                     <tr key={i}>
-                      <td>{p.player?.name}</td>
+                      <td>
+                        {p.player?.photoUrl ? (
+                          <img 
+                            src={p.player.photoUrl} 
+                            alt={p.player?.name}
+                            referrerPolicy="no-referrer"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                            style={{ width: 40, height: 50, borderRadius: 6, objectFit: 'cover', border: '1px solid #2e4370' }}
+                          />
+                        ) : (
+                          <div style={{ 
+                            width: 40, 
+                            height: 50, 
+                            borderRadius: 6, 
+                            border: '1px solid #2e4370', 
+                            background: '#1a2942',
+                            display: 'grid',
+                            placeItems: 'center',
+                            fontSize: 18,
+                            fontWeight: 700
+                          }}>
+                            {p.player?.name?.charAt(0)?.toUpperCase() || 'P'}
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          {p.player?.name}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                          {p.player?.isCaptain && (
+                            <span style={{ 
+                              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                              color: 'white',
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              ⭐ Captain
+                            </span>
+                          )}
+                          {p.player?.isIcon && (
+                            <span style={{ 
+                              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                              color: 'white',
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              💎 Icon
+                            </span>
+                          )}
+                          {p.player?.isRetained && (
+                            <span style={{ 
+                              background: 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)',
+                              color: 'white',
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              🔒 Retained
+                            </span>
+                          )}
+                          {p.player?.isTraded && (
+                            <span style={{ 
+                              background: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
+                              color: 'white',
+                              padding: '3px 8px',
+                              borderRadius: 12,
+                              fontSize: 10,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 3,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              🔄 Traded
+                            </span>
+                          )}
+                          {!p.player?.isCaptain && !p.player?.isIcon && !p.player?.isRetained && !p.player?.isTraded && (
+                            <span style={{ color: '#6b7280', fontSize: 11 }}>-</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>{p.player?.batch}</td>
+                      <td>{p.player?.phoneNumber || '-'}</td>
                       <td>{p.player?.house}</td>
                       <td>{p.player?.strength}</td>
                       <td>₹{p.price.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                   {!detail.purchases?.length && (
-                    <tr><td colSpan={4} className="muted">No purchases yet</td></tr>
+                    <tr><td colSpan={7} className="muted">No purchases yet</td></tr>
                   )}
                 </tbody>
               </table>

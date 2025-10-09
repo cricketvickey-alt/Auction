@@ -8,6 +8,8 @@ import playersRouter from './routes/players.js';
 import teamsRouter from './routes/teams.js';
 import auctionRouter, { initAuctionSockets } from './routes/auction.js';
 import adminRouter from './routes/admin.js';
+import authRouter from './routes/auth.js';
+import formConfigRouter from './routes/formConfig.js';
 import { adminAuth } from './middleware/adminAuth.js';
 
 const app = express();
@@ -55,6 +57,8 @@ app.use('/api/players', playersRouter);
 app.use('/api/teams', teamsRouter);
 app.use('/api/auction', auctionRouter);
 app.use('/api/admin', adminAuth, adminRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/forms', formConfigRouter);
 
 const PORT = process.env.PORT || 4000;
 

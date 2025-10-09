@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 
 // Get team detail
 router.get('/:id', async (req, res) => {
-  const t = await Team.findById(req.params.id).populate('purchases.player', 'name batch house strength photoUrl');
+  const t = await Team.findById(req.params.id).populate('purchases.player', 'name batch house strength photoUrl phoneNumber isCaptain isIcon isRetained isTraded');
   if (!t) return res.status(404).json({ error: 'not found' });
   res.json(t);
 });
